@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   Hospital,  
   Users,
-  Stethoscope,
+  Stethoscope, 
   FlaskConical, 
   Pill,
   FileText,
