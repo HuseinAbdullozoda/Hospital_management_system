@@ -5,6 +5,8 @@ from app.db.models.doctor import Doctor
 from app.db.models.appointment import Appointment
 from app.db.models.prescription import Prescription
 from app.db.models.lab import LabTest, LabOrder, LabResult
+from app.db.models.pharmacy import Medicine, PharmacyOrder, Inventory
+from app.db.models.hospital import Hospital, Department, Staff
 from app.db.session import engine
 
 if __name__ == "__main__":
