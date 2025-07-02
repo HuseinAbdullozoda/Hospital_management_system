@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Multi-Hospital Management System",
-  description: "AI-Powered Healthcare Management Platform",
-    generator: 'v0.dev'
+  description: "Healthcare Management System",
+    generator: 'Abdullozoda Husein Sadullo'
 }
 
 export default function RootLayout({
