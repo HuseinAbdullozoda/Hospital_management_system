@@ -37,8 +37,6 @@ def create_medicine(
         name=medicine.name,
         description=medicine.description,
         price=medicine.price,
-        category=medicine.category,
-        manufacturer=medicine.manufacturer,
         is_available=True,
         created_by=current_user.id
     )
@@ -94,6 +92,7 @@ def toggle_medicine_availability(
     if not medicine:
         raise HTTPException(status_code=404, detail="Medicine not found")
     
+    # Toggle the boolean value
     medicine.is_available = not medicine.is_available
     db.commit()
     
@@ -104,7 +103,11 @@ def toggle_medicine_availability(
 
 # Orders
 @router.post("/orders", response_model=PharmacyOrderRead)
-def create_pharmacy_order(order: PharmacyOrderCreate, db: Session = Depends(get_db), user=Depends(require_roles("patient"))):
+def create_pharmacy_order(
+    order: PharmacyOrderCreate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(require_roles(["patient"]))
+):
     new_order = PharmacyOrder(**order.dict(), ordered_at=datetime.utcnow())
     db.add(new_order)
     db.commit()
@@ -112,7 +115,11 @@ def create_pharmacy_order(order: PharmacyOrderCreate, db: Session = Depends(get_
     return new_order
 
 @router.get("/orders/{order_id}", response_model=PharmacyOrderRead)
-def get_pharmacy_order(order_id: int, db: Session = Depends(get_db), user=Depends(require_roles("admin", "pharmacist", "doctor", "hospital_admin", "patient"))):
+def get_pharmacy_order(
+    order_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(require_roles(["admin", "pharmacist", "doctor", "hospital_admin", "patient"]))
+):
     order = db.query(PharmacyOrder).filter(PharmacyOrder.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -120,27 +127,39 @@ def get_pharmacy_order(order_id: int, db: Session = Depends(get_db), user=Depend
 
 # Inventory
 @router.get("/inventory", response_model=List[InventoryRead])
-def list_inventory(db: Session = Depends(get_db), user=Depends(require_roles("admin", "pharmacist", "hospital_admin"))):
+def list_inventory(
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(require_roles(["admin", "pharmacist", "hospital_admin"]))
+):
     return db.query(Inventory).all()
 
 @router.put("/inventory/{inventory_id}", response_model=InventoryRead)
-def update_inventory(inventory_id: int, update: InventoryUpdate, db: Session = Depends(get_db), user=Depends(require_roles("pharmacist", "hospital_admin"))):
+def update_inventory(
+    inventory_id: int, 
+    update: InventoryUpdate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(require_roles(["pharmacist", "hospital_admin"]))
+):
     inv = db.query(Inventory).filter(Inventory.id == inventory_id).first()
     if not inv:
         raise HTTPException(status_code=404, detail="Inventory item not found")
-    inv.stock = update.stock
+    inv.quantity = update.stock
     db.commit()
     db.refresh(inv)
     return inv
 
 @router.get("/orders/{order_id}/status")
-def get_order_status(order_id: int, db: Session = Depends(get_db), user=Depends(require_roles("admin", "pharmacist", "doctor", "hospital_admin", "patient"))):
+def get_order_status(
+    order_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(require_roles(["admin", "pharmacist", "doctor", "hospital_admin", "patient"]))
+):
     order = db.query(PharmacyOrder).filter(PharmacyOrder.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return {"status": order.status}
 
-@router.get("/inventory")
+@router.get("/inventory-details")
 def get_inventory(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(["pharmacist"]))

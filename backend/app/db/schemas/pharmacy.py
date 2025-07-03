@@ -12,8 +12,30 @@ class MedicineBase(BaseModel):
 class MedicineCreate(MedicineBase):
     pass
 
+class MedicineUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[int] = None
+    stock: Optional[int] = None
+    expiry_date: Optional[datetime] = None
+
 class MedicineRead(MedicineBase):
     id: int
+    class Config:
+        from_attributes = True
+
+class MedicineResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    price: Optional[int] = None
+    stock: Optional[int] = 0
+    expiry_date: Optional[datetime] = None
+    is_available: bool = True
+    category: Optional[str] = None
+    manufacturer: Optional[str] = None
+    created_by: Optional[int] = None
+    
     class Config:
         from_attributes = True
 
