@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 function DoctorSidebar() {
   const menuItems = [
@@ -55,6 +56,7 @@ function DoctorSidebar() {
 }
 
 export default function DoctorPatients() {
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCondition, setFilterCondition] = useState("all")
   const [sortBy, setSortBy] = useState("name")
@@ -295,13 +297,27 @@ export default function DoctorPatients() {
                   </div>
 
                   <div className="flex justify-end space-x-2 mt-4">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => {
+                      // TODO: Implement schedule appointment functionality
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "Schedule appointment functionality will be available soon.",
+                      })
+                    }}>
                       Schedule Appointment
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => {
+                      // TODO: Implement view history functionality
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "View history functionality will be available soon.",
+                      })
+                    }}>
                       View History
                     </Button>
-                    <Button size="sm">Create Prescription</Button>
+                    <Button size="sm" asChild>
+                      <Link href={`/doctor/prescriptions/new?patient=${patient.id}`}>Create Prescription</Link>
+                    </Button>
                   </div>
                 </div>
               ))}

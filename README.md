@@ -1,124 +1,290 @@
-#  Hospital Management System
+# 🏥 Hospital Management System
 
-<img src="https://ibb.co/hJRgGdWN" alt="Project Logo" width="200"/>
+A comprehensive full-stack hospital management system built with Next.js 14 frontend and FastAPI backend, featuring role-based access control and complete healthcare workflow management.
 
-A full-stack **Hospital Management System** built with **Django (Python)** on the backend and **React + Redux** on the frontend. This system streamlines hospital operations, including patient records, doctor scheduling, appointments, and department management.
+## ✨ Features
 
----
+### 🔐 Authentication & User Management
+- **Multi-role Authentication**: Patient, Doctor, Lab Technician, Pharmacist, Hospital Admin, System Admin
+- **JWT-based Security**: Secure token-based authentication
+- **Password Management**: Change password functionality with validation
+- **User Profiles**: Complete user profile management
 
-## 📌 Features
+### 👥 Role-Based Access Control
+- **Patient Portal**: Book appointments, view medical history, chat with doctors
+- **Doctor Dashboard**: Manage patients, appointments, prescriptions
+- **Lab Technician**: Process lab tests, generate reports, manage inventory
+- **Pharmacist**: Manage medicine inventory, process orders, export data
+- **Hospital Admin**: Oversee hospital operations, manage staff, view reports
+- **System Admin**: Platform-wide management, hospital approvals
 
-- 🔐 User Authentication with JWT  
-- 🧑‍⚕️ Role-based Dashboards (Admin, Doctor, Patient)  
-- 📅 Appointment Scheduling  
-- 📁 Patient Record Management  
-- 🏥 Department & Staff Management  
-- 📊 React + Redux for dynamic UI  
-- 📡 Django REST Framework for APIs  
-- 📱 Responsive design using Bootstrap  
+### 📅 Appointment Management
+- **Smart Scheduling**: Book, reschedule, and cancel appointments
+- **Status Tracking**: Real-time appointment status updates
+- **Doctor-Patient Communication**: Integrated chat system
+- **Reminder System**: Email and SMS notifications
 
----
+### 🔬 Laboratory Management
+- **Test Management**: Create, track, and complete lab tests
+- **Report Generation**: Automated test report generation
+- **Inventory Tracking**: Lab equipment and supplies management
+- **Patient Information**: Quick access to patient details
 
-## ⚙️ Tech Stack
+### 💊 Pharmacy Management
+- **Medicine Inventory**: Complete medicine catalog management
+- **Stock Management**: Low stock alerts and expiry notifications
+- **Order Processing**: Patient medicine orders
+- **Data Export**: Export pharmacy data and reports
 
-- **Frontend**: React.js, Redux, Redux-Form, Bootstrap  
-- **Backend**: Django, Django REST Framework  
-- **Database**: SQLite (can upgrade to PostgreSQL)  
-- **Authentication**: JSON Web Token (JWT)  
-- **Build Tools**: Webpack, npm  
+### 🏥 Hospital Administration
+- **Staff Management**: Doctor, nurse, and staff management
+- **Department Management**: Hospital department organization
+- **Performance Analytics**: Hospital metrics and reports
+- **Approval Workflows**: Hospital and staff approval processes
 
----
+## 🛠️ Tech Stack
 
-## 🚀 Getting Started
+### Frontend
+- **Next.js 14**: React framework with App Router
+- **TypeScript**: Type-safe development
+- **Tailwind CSS**: Utility-first CSS framework
+- **Shadcn/ui**: Modern component library
+- **Lucide React**: Beautiful icons
+- **React Hook Form**: Form management
+- **Zod**: Schema validation
 
-### 🔧 Prerequisites
+### Backend
+- **FastAPI**: Modern Python web framework
+- **SQLAlchemy**: SQL toolkit and ORM
+- **SQLite**: Lightweight database (easily switchable to PostgreSQL/MySQL)
+- **Alembic**: Database migrations
+- **Pydantic**: Data validation
+- **JWT**: JSON Web Token authentication
+- **Passlib**: Password hashing
 
-- Python 3.8+  
-- Node.js & npm  
+## 📁 Project Structure
 
----
+```
+Hospital-Management-System/
+├── app/                          # Next.js frontend
+│   ├── admin/                    # System admin pages
+│   ├── auth/                     # Authentication pages
+│   ├── doctor/                   # Doctor portal
+│   ├── hospital-admin/           # Hospital admin portal
+│   ├── lab/                      # Lab technician portal
+│   ├── patient/                  # Patient portal
+│   ├── pharmacist/               # Pharmacist portal
+│   └── system-admin/             # System admin portal
+├── backend/                      # FastAPI backend
+│   ├── app/
+│   │   ├── api/v1/              # API endpoints
+│   │   ├── core/                # Core configuration
+│   │   ├── db/                  # Database models and schemas
+│   │   └── main.py              # FastAPI application
+│   ├── alembic/                 # Database migrations
+│   └── requirements.txt         # Python dependencies
+├── components/                   # Reusable UI components
+├── lib/                         # Utility functions and API client
+└── public/                      # Static assets
+```
 
-### 🛠 Setup Instructions
+## 🚀 Quick Start
 
-#### 1. Create and Activate Virtual Environment
+### Prerequisites
+- Node.js 18+ 
+- Python 3.8+
+- npm or yarn
 
-`python -m venv venv`  
-`source venv/bin/activate` &nbsp;&nbsp; *(Windows: `venv\Scripts\activate`)*  
+### Backend Setup
 
----
+1. **Navigate to backend directory:**
+   ```bash
+   cd backend
+   ```
 
-#### 2. Install Backend Dependencies and Initialize Database
+2. **Create virtual environment:**
+   ```bash
+   python -m venv venv
+   ```
 
-`pip install -r requirements.txt`  
-`python manage.py makemigrations`  
-`python manage.py migrate`  
-`python manage.py createsuperuser`  
+3. **Activate virtual environment:**
+   ```bash
+   # Windows
+   venv\Scripts\activate
+   
+   # macOS/Linux
+   source venv/bin/activate
+   ```
 
----
+4. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-#### 3. Install Frontend Dependencies
+5. **Create environment file:**
+   Create a `.env` file in the backend directory:
+   ```env
+   SQLITE_DB_URL=sqlite:///./hms_tajikistan.db
+   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+   JWT_ALGORITHM=HS256
+   HOST=0.0.0.0
+   PORT=8000
+   ```
 
-`npm install`  
-`npm run-script build`  
+6. **Initialize database:**
+   ```bash
+   python init_db.py
+   ```
 
-⚠️ After every change in React components, run:  
-`npm run-script build`  
+7. **Start backend server:**
+   ```bash
+   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   ```
 
----
+### Frontend Setup
 
-### ▶️ Running the App
+1. **Navigate to project root:**
+   ```bash
+   cd ..
+   ```
 
-Start Django backend:  
-`python manage.py runserver`  
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-(Optional) Run React dev server:  
-`npm start`  
+3. **Create environment file:**
+   Create a `.env.local` file in the project root:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+   ```
 
----
+4. **Start development server:**
+   ```bash
+   npm run dev
+   ```
 
-## 🧪 Using the System
+5. **Open your browser:**
+   Navigate to `http://localhost:3000`
 
-- Visit: `http://localhost:8000/`  
-- Log in via the superuser account you created  
-- Access role-specific dashboards:
-  - **Admin**: manage doctors, departments, patients  
-  - **Doctor**: view patient history, appointments  
-  - **Patient**: book appointments, view records  
+## 🔑 Default Users
 
----
+After setting up the database, you can register users with different roles:
 
-## 📂 Project Structure Overview
-        
-        ├── manage.py
-        ├── accounts/           # Authentication and user management
-        ├── Patients/           # Patient data and appointments
-        ├── Departments/        # Hospital departments and staff
-        ├── src/                # React app source code
-        ├── public/             # React public files
-        ├── package.json
-        ├── requirements.txt
-        ├── db.sqlite3
+- **Patient**: Can book appointments, view medical history
+- **Doctor**: Can manage patients and appointments
+- **Lab Technician**: Can process lab tests
+- **Pharmacist**: Can manage medicine inventory
+- **Hospital Admin**: Can manage hospital operations
+- **System Admin**: Can manage the entire platform
 
+## 📚 API Documentation
 
-## 🔐 Authentication Flow
+Once the backend is running, you can access the interactive API documentation:
 
-- User logs in from the React frontend  
-- JWT token is issued by Django and stored on the frontend  
-- Protected API endpoints require the token in headers  
+- **Swagger UI**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
 
----
+## 🔧 Available Scripts
 
-## 📈 Future Improvements
+### Frontend
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-- Add nurse/lab roles  
-- Add dashboard analytics (Chart.js, Recharts)  
-- Enable chat system (WebSockets)  
-- Integrate email/SMS reminders  
-- Add calendar view for scheduling  
-- Enable PDF export of records/prescriptions  
+### Backend
+- `python init_db.py` - Initialize database
+- `python -m uvicorn app.main:app --reload` - Start development server
+- `alembic revision --autogenerate` - Generate migration
+- `alembic upgrade head` - Apply migrations
 
----
+## 🌟 Key Features Implemented
+
+### ✅ Frontend
+- Complete role-based dashboards
+- Real-time form validation
+- Interactive dialogs and modals
+- Loading states and error handling
+- Responsive design for all devices
+- File upload and download functionality
+- Toast notifications for user feedback
+
+### ✅ Backend
+- RESTful API with FastAPI
+- JWT authentication and authorization
+- Role-based access control
+- Database models and relationships
+- Input validation with Pydantic
+- Error handling and logging
+- File upload/download endpoints
+
+### ✅ Database
+- SQLite database (production-ready)
+- Alembic migrations
+- Proper relationships and constraints
+- Data integrity and validation
+
+## 🔒 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: Bcrypt password encryption
+- **Role-Based Access**: Granular permission system
+- **Input Validation**: Server-side validation with Pydantic
+- **CORS Protection**: Cross-origin resource sharing protection
+- **SQL Injection Prevention**: SQLAlchemy ORM protection
+
+## 📱 Responsive Design
+
+The application is fully responsive and works on:
+- Desktop computers
+- Tablets
+- Mobile phones
+- All modern browsers
+
+## 🚀 Deployment
+
+### Frontend Deployment
+The Next.js application can be deployed to:
+- Vercel (recommended)
+- Netlify
+- AWS Amplify
+- Any static hosting service
+
+### Backend Deployment
+The FastAPI application can be deployed to:
+- Railway
+- Heroku
+- DigitalOcean
+- AWS EC2
+- Google Cloud Platform
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+If you encounter any issues or have questions:
+
+1. Check the API documentation at `http://localhost:8000/docs`
+2. Review the console logs for error messages
+3. Ensure all environment variables are properly set
+4. Verify database initialization completed successfully
+
+## 🎯 Roadmap
+
+- [ ] Real-time notifications with WebSockets
+- [ ] Mobile app development
+- [ ] Advanced analytics and reporting
+- [ ] Integration with external healthcare systems
+- [ ] Multi-language support
+- [ ] Advanced search and filtering
+- [ ] Bulk operations for data management
+- [ ] Automated testing suite
+- [ ] Performance optimization
+- [ ] Advanced security features
+
+---
+
+**Built with ❤️ for better healthcare management**

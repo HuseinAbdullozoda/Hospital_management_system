@@ -16,6 +16,8 @@ import {
   TestTube,
   Pill,
   Stethoscope,
+  Mail,
+  AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
@@ -29,6 +31,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import { apiClient } from "@/lib/api"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 function PatientSidebar() {
   const menuItems = [
@@ -65,70 +71,145 @@ function PatientSidebar() {
 
 export default function PatientAppointments() {
   const { toast } = useToast()
-  const [appointments, setAppointments] = useState([
+  const [isRescheduling, setIsRescheduling] = useState(false)
+  const [rescheduleData, setRescheduleData] = useState({
+    appointment_date: "",
+    appointment_time: "",
+    reason: ""
+  })
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null)
+  const [isRescheduleDialogOpen, setIsRescheduleDialogOpen] = useState(false)
+
+  const handleReschedule = async () => {
+    if (!selectedAppointment) return
+
+    if (!rescheduleData.appointment_date || !rescheduleData.appointment_time) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsRescheduling(true)
+    try {
+      const result = await apiClient.rescheduleAppointment(selectedAppointment.id, rescheduleData)
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Success",
+          description: "Appointment rescheduled successfully",
+        })
+        setIsRescheduleDialogOpen(false)
+        setRescheduleData({ appointment_date: "", appointment_time: "", reason: "" })
+        setSelectedAppointment(null)
+        // Refresh appointments list here
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reschedule appointment",
+        variant: "destructive",
+      })
+    } finally {
+      setIsRescheduling(false)
+    }
+  }
+
+  const handleCancelAppointment = async (appointmentId: number) => {
+    try {
+      const result = await apiClient.request(`/appointments/${appointmentId}`, {
+        method: 'DELETE'
+      })
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Success",
+          description: "Appointment cancelled successfully",
+        })
+        // Refresh appointments list here
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to cancel appointment",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const openRescheduleDialog = (appointment: any) => {
+    setSelectedAppointment(appointment)
+    setIsRescheduleDialogOpen(true)
+  }
+
+  // Mock data - replace with actual API call
+  const upcomingAppointments = [
     {
       id: 1,
       doctor: "Dr. Sarah Johnson",
-      specialty: "Cardiologist",
-      date: "2024-01-20",
+      specialty: "Cardiology",
+      date: "2024-01-15",
       time: "10:00 AM",
       status: "confirmed",
-      hospital: "City General Hospital",
-      address: "123 Main St, Downtown",
+      location: "Main Hospital, Room 205",
       phone: "+1 (555) 123-4567",
-      type: "Consultation",
+      email: "dr.johnson@hospital.com",
+      reason: "Follow-up consultation"
     },
     {
       id: 2,
       doctor: "Dr. Michael Chen",
-      specialty: "Dermatologist",
-      date: "2024-01-22",
+      specialty: "Dermatology",
+      date: "2024-01-18",
       time: "2:30 PM",
       status: "pending",
-      hospital: "Metro Medical Center",
-      address: "456 Oak Ave, Midtown",
+      location: "Medical Center, Room 103",
       phone: "+1 (555) 987-6543",
-      type: "Follow-up",
-    },
-    {
-      id: 3,
-      doctor: "Dr. Emily Davis",
-      specialty: "Pediatrician",
-      date: "2024-01-25",
-      time: "11:15 AM",
-      status: "confirmed",
-      hospital: "Children's Hospital",
-      address: "789 Pine St, Uptown",
-      phone: "+1 (555) 456-7890",
-      type: "Check-up",
-    },
-  ])
+      email: "dr.chen@hospital.com",
+      reason: "Skin condition evaluation"
+    }
+  ]
 
-  const handleCancelAppointment = (appointmentId: number) => {
-    setAppointments((prev) => prev.filter((apt) => apt.id !== appointmentId))
-    toast({
-      title: "Appointment Cancelled",
-      description: "Your appointment has been successfully cancelled.",
-    })
-  }
-
-  const upcomingAppointments = appointments.filter((apt) => apt.status !== "cancelled")
   const pastAppointments = [
     {
-      id: 4,
-      doctor: "Dr. Robert Wilson",
-      specialty: "General Practitioner",
+      id: 3,
+      doctor: "Dr. Emily Rodriguez",
+      specialty: "General Medicine",
       date: "2024-01-10",
       time: "9:00 AM",
       status: "completed",
-      hospital: "City General Hospital",
-      type: "Consultation",
-    },
+      location: "Main Hospital, Room 101",
+      phone: "+1 (555) 456-7890",
+      email: "dr.rodriguez@hospital.com",
+      reason: "Annual checkup"
+    }
   ]
 
+  const getStatusBadge = (status: string) => {
+    const variants: any = {
+      confirmed: "default",
+      pending: "secondary",
+      cancelled: "destructive",
+      completed: "outline"
+    }
+    return <Badge variant={variants[status]}>{status}</Badge>
+  }
+
   return (
-    <DashboardLayout title="My Appointments" sidebar={<PatientSidebar />}>
-      <div className="space-y-6">
+    <DashboardLayout title="Appointments" sidebar={<PatientSidebar />}>
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Upcoming Appointments */}
         <Card>
           <CardHeader>
@@ -139,87 +220,99 @@ export default function PatientAppointments() {
             <CardDescription>Your scheduled appointments</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {upcomingAppointments.map((appointment) => (
-                <div key={appointment.id} className="border rounded-lg p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="bg-blue-100 p-3 rounded-full">
-                          <User className="h-6 w-6 text-blue-600" />
+            {upcomingAppointments.length === 0 ? (
+              <div className="text-center py-8">
+                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No upcoming appointments</h3>
+                <p className="text-gray-600 mb-4">You don't have any scheduled appointments.</p>
+                <Button asChild>
+                  <Link href="/patient/doctors">Book an Appointment</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {upcomingAppointments.map((appointment) => (
+                  <div key={appointment.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h3 className="font-semibold">{appointment.doctor}</h3>
+                          {getStatusBadge(appointment.status)}
                         </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">{appointment.doctor}</h3>
-                          <p className="text-gray-600">{appointment.specialty}</p>
-                          <Badge variant={appointment.status === "confirmed" ? "default" : "secondary"}>
-                            {appointment.status}
-                          </Badge>
+                        <p className="text-sm text-gray-600 mb-2">{appointment.specialty}</p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{appointment.date}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{appointment.time}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="h-4 w-4" />
+                            <span>{appointment.location}</span>
+                          </div>
                         </div>
+                        <p className="text-sm text-gray-600 mt-2">
+                          <strong>Reason:</strong> {appointment.reason}
+                        </p>
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-gray-500" />
-                          <span>{appointment.date}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4 text-gray-500" />
-                          <span>{appointment.time}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="h-4 w-4 text-gray-500" />
-                          <span>{appointment.hospital}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Phone className="h-4 w-4 text-gray-500" />
+                      <div className="flex space-x-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => openRescheduleDialog(appointment)}
+                        >
+                          Reschedule
+                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              Cancel
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Cancel Appointment</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to cancel your appointment with {appointment.doctor}? This action cannot be undone.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => {
+                                // Close the dialog by clicking outside or pressing escape
+                                const dialog = document.querySelector('[role="dialog"]')
+                                if (dialog) {
+                                  dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+                                }
+                              }}>
+                                Keep Appointment
+                              </Button>
+                              <Button variant="destructive" onClick={() => handleCancelAppointment(appointment.id)}>
+                                Cancel Appointment
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="flex items-center space-x-4 text-sm">
+                        <div className="flex items-center space-x-1">
+                          <Phone className="h-4 w-4" />
                           <span>{appointment.phone}</span>
                         </div>
+                        <div className="flex items-center space-x-1">
+                          <Mail className="h-4 w-4" />
+                          <span>{appointment.email}</span>
+                        </div>
                       </div>
-
-                      {appointment.address && <p className="text-sm text-gray-500 mt-2">{appointment.address}</p>}
-                    </div>
-
-                    <div className="flex flex-col space-y-2 ml-4">
-                      <Button size="sm" variant="outline">
-                        Reschedule
-                      </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="destructive">
-                            Cancel
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Cancel Appointment</DialogTitle>
-                            <DialogDescription>
-                              Are you sure you want to cancel your appointment with {appointment.doctor} on{" "}
-                              {appointment.date} at {appointment.time}?
-                            </DialogDescription>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <Button variant="outline">Keep Appointment</Button>
-                            <Button variant="destructive" onClick={() => handleCancelAppointment(appointment.id)}>
-                              Cancel Appointment
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </div>
-                </div>
-              ))}
-
-              {upcomingAppointments.length === 0 && (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No upcoming appointments</p>
-                  <Button asChild className="mt-4">
-                    <Link href="/patient/doctors">Book an Appointment</Link>
-                  </Button>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -227,37 +320,111 @@ export default function PatientAppointments() {
         <Card>
           <CardHeader>
             <CardTitle>Past Appointments</CardTitle>
-            <CardDescription>Your appointment history</CardDescription>
+            <CardDescription>Your completed appointments</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {pastAppointments.map((appointment) => (
-                <div key={appointment.id} className="border rounded-lg p-4 bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="bg-gray-200 p-2 rounded-full">
-                        <User className="h-5 w-5 text-gray-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">{appointment.doctor}</h4>
-                        <p className="text-sm text-gray-600">{appointment.specialty}</p>
-                        <p className="text-sm text-gray-500">
-                          {appointment.date} at {appointment.time}
+            {pastAppointments.length === 0 ? (
+              <div className="text-center py-8">
+                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No past appointments</h3>
+                <p className="text-gray-600">You don't have any completed appointments yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {pastAppointments.map((appointment) => (
+                  <div key={appointment.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h3 className="font-semibold">{appointment.doctor}</h3>
+                          {getStatusBadge(appointment.status)}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{appointment.specialty}</p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{appointment.date}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{appointment.time}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="h-4 w-4" />
+                            <span>{appointment.location}</span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-2">
+                          <strong>Reason:</strong> {appointment.reason}
                         </p>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline">Completed</Badge>
-                      <Button size="sm" variant="outline">
-                        View Details
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline" onClick={() => {
+                          // TODO: Implement view details functionality
+                          toast({
+                            title: "Feature Coming Soon",
+                            description: "View details functionality will be available soon.",
+                          })
+                        }}>
+                          View Details
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Reschedule Dialog */}
+        <Dialog open={isRescheduleDialogOpen} onOpenChange={setIsRescheduleDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reschedule Appointment</DialogTitle>
+              <DialogDescription>
+                Choose a new date and time for your appointment with {selectedAppointment?.doctor}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="appointment_date">New Date</Label>
+                <Input
+                  id="appointment_date"
+                  type="date"
+                  value={rescheduleData.appointment_date}
+                  onChange={(e) => setRescheduleData(prev => ({ ...prev, appointment_date: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="appointment_time">New Time</Label>
+                <Input
+                  id="appointment_time"
+                  type="time"
+                  value={rescheduleData.appointment_time}
+                  onChange={(e) => setRescheduleData(prev => ({ ...prev, appointment_time: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="reason">Reason for Rescheduling (Optional)</Label>
+                <Textarea
+                  id="reason"
+                  value={rescheduleData.reason}
+                  onChange={(e) => setRescheduleData(prev => ({ ...prev, reason: e.target.value }))}
+                  placeholder="Please provide a reason for rescheduling..."
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsRescheduleDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleReschedule} disabled={isRescheduling}>
+                {isRescheduling ? "Rescheduling..." : "Reschedule Appointment"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   )

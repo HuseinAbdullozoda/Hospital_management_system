@@ -56,4 +56,54 @@ def delete_appointment(appointment_id: int, db: Session = Depends(get_db), user=
 @router.get("/available-slots")
 def get_available_slots():
     # Placeholder: implement slot logic
-    return {"slots": []} 
+    return {"slots": []}
+
+@router.put("/{appointment_id}/reschedule", response_model=AppointmentRead)
+def reschedule_appointment(
+    appointment_id: int,
+    update: AppointmentUpdate,
+    db: Session = Depends(get_db),
+    user=Depends(require_roles("patient", "doctor"))
+):
+    """Reschedule an appointment"""
+    appt = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Check if user has permission to reschedule this appointment
+    if user.role == "patient" and appt.patient_id != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to reschedule this appointment")
+    elif user.role == "doctor" and appt.doctor_id != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to reschedule this appointment")
+    
+    # Update appointment details
+    for key, value in update.dict(exclude_unset=True).items():
+        setattr(appt, key, value)
+    
+    appt.status = "pending"  # Reset status to pending for approval
+    db.commit()
+    db.refresh(appt)
+    
+    return appt
+
+@router.post("/{appointment_id}/start-consultation")
+def start_consultation(
+    appointment_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(require_roles("doctor"))
+):
+    """Start a consultation for an appointment"""
+    appt = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    if appt.doctor_id != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to start this consultation")
+    
+    if appt.status != "confirmed":
+        raise HTTPException(status_code=400, detail="Appointment must be confirmed to start consultation")
+    
+    appt.status = "in-progress"
+    db.commit()
+    
+    return {"message": "Consultation started successfully"} 

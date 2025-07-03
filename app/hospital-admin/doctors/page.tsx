@@ -403,15 +403,33 @@ export default function HospitalDoctorsPage() {
                     </div>
 
                     <div className="flex space-x-2 pt-2">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        // TODO: Implement view profile functionality
+                        toast({
+                          title: "Feature Coming Soon",
+                          description: "View profile functionality will be available soon.",
+                        })
+                      }}>
                         <Eye className="h-4 w-4 mr-1" />
                         View Profile
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        // TODO: Implement edit functionality
+                        toast({
+                          title: "Feature Coming Soon",
+                          description: "Edit doctor functionality will be available soon.",
+                        })
+                      }}>
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        // TODO: Implement schedule functionality
+                        toast({
+                          title: "Feature Coming Soon",
+                          description: "Schedule functionality will be available soon.",
+                        })
+                      }}>
                         <Calendar className="h-4 w-4 mr-1" />
                         Schedule
                       </Button>

@@ -6,4 +6,6 @@ alembic
 pydantic
 python-dotenv
 passlib[bcrypt]
-PyJWT 
+PyJWT
+python-jose[cryptography]
+python-multipart 

@@ -291,7 +291,17 @@ export default function DoctorAppointments() {
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/doctor/patients/${appointment.patientId}`}>View Patient</Link>
                     </Button>
-                    {appointment.status === "confirmed" && <Button size="sm">Start Consultation</Button>}
+                    {appointment.status === "confirmed" && (
+                      <Button size="sm" onClick={() => {
+                        // TODO: Implement start consultation functionality
+                        toast({
+                          title: "Feature Coming Soon",
+                          description: "Start consultation functionality will be available soon.",
+                        })
+                      }}>
+                        Start Consultation
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

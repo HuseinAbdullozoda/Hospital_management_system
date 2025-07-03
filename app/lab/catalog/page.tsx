@@ -373,7 +373,13 @@ export default function TestCatalog() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => {
+                      // TODO: Implement edit functionality
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "Edit test functionality will be available soon.",
+                      })
+                    }}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button

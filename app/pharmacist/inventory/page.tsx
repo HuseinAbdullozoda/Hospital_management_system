@@ -326,7 +326,13 @@ export default function PharmacistInventory() {
                     </div>
 
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        // TODO: Implement edit functionality
+                        toast({
+                          title: "Feature Coming Soon",
+                          description: "Edit medicine functionality will be available soon.",
+                        })
+                      }}>
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>

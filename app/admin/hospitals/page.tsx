@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -66,6 +67,7 @@ function AdminSidebar() {
 }
 
 export default function HospitalsPage() {
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
@@ -171,7 +173,14 @@ export default function HospitalsPage() {
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => setIsAddDialogOpen(false)}>Add Hospital</Button>
+                  <Button onClick={() => {
+                    // TODO: Implement add hospital functionality
+                    toast({
+                      title: "Feature Coming Soon",
+                      description: "Add hospital functionality will be available soon.",
+                    })
+                    setIsAddDialogOpen(false)
+                  }}>Add Hospital</Button>
                 </div>
               </div>
             </DialogContent>
@@ -223,7 +232,13 @@ export default function HospitalsPage() {
 
                   {/* Actions */}
                   <div className="flex space-x-2 pt-4">
-                    <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                    <Button size="sm" variant="outline" className="flex-1 bg-transparent" onClick={() => {
+                      // TODO: Implement edit functionality
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "Edit hospital functionality will be available soon.",
+                      })
+                    }}>
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
@@ -233,7 +248,13 @@ export default function HospitalsPage() {
                         Departments
                       </Link>
                     </Button>
-                    <Button size="sm" variant="destructive">
+                    <Button size="sm" variant="destructive" onClick={() => {
+                      // TODO: Implement delete functionality
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "Delete hospital functionality will be available soon.",
+                      })
+                    }}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

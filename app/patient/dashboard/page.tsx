@@ -77,61 +77,69 @@ export default function PatientDashboard() {
       <div className="space-y-6">
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 p-3 rounded-lg">
-                  <Calendar className="h-6 w-6 text-blue-600" />
+          <Link href="/patient/doctors">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-blue-100 p-3 rounded-lg">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Book Appointment</h3>
+                    <p className="text-sm text-gray-600">Find & book doctors</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold">Book Appointment</h3>
-                  <p className="text-sm text-gray-600">Find & book doctors</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="bg-green-100 p-3 rounded-lg">
-                  <MessageCircle className="h-6 w-6 text-green-600" />
+          <Link href="/patient/chat">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-green-100 p-3 rounded-lg">
+                    <MessageCircle className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Chat with Doctor</h3>
+                    <p className="text-sm text-gray-600">Instant messaging</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold">Chat with Doctor</h3>
-                  <p className="text-sm text-gray-600">Instant messaging</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <ShoppingCart className="h-6 w-6 text-purple-600" />
+          <Link href="/patient/lab-tests">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <ShoppingCart className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Lab Tests</h3>
+                    <p className="text-sm text-gray-600">Book & pay online</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold">Lab Tests</h3>
-                  <p className="text-sm text-gray-600">Book & pay online</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="bg-orange-100 p-3 rounded-lg">
-                  <Pill className="h-6 w-6 text-orange-600" />
+          <Link href="/patient/pharmacy">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-orange-100 p-3 rounded-lg">
+                    <Pill className="h-6 w-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Buy Medicines</h3>
+                    <p className="text-sm text-gray-600">Online pharmacy</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold">Buy Medicines</h3>
-                  <p className="text-sm text-gray-600">Online pharmacy</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

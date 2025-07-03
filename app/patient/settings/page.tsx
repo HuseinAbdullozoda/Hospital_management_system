@@ -22,6 +22,10 @@ import {
 import Link from "next/link"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
+import { apiClient } from "@/lib/api"
+import { Separator } from "@/components/ui/separator"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 
 function PatientSidebar() {
   const menuItems = [
@@ -58,6 +62,11 @@ function PatientSidebar() {
 
 export default function PatientSettings() {
   const { toast } = useToast()
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [settings, setSettings] = useState({
     emailNotifications: true,
     smsNotifications: true,
@@ -75,20 +84,64 @@ export default function PatientSettings() {
     timezone: "America/New_York",
   })
 
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsChangingPassword(true)
+    try {
+      const result = await apiClient.changePassword(currentPassword, newPassword)
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Success",
+          description: "Password changed successfully",
+        })
+        setIsPasswordDialogOpen(false)
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to change password",
+        variant: "destructive",
+      })
+    } finally {
+      setIsChangingPassword(false)
+    }
+  }
+
   const handleSettingChange = (setting: string, value: boolean | string) => {
     setSettings((prev) => ({
       ...prev,
       [setting]: value,
     }))
-  }
-
-  const handleSaveSettings = () => {
-    setTimeout(() => {
-      toast({
-        title: "Settings Saved",
-        description: "Your preferences have been successfully updated.",
-      })
-    }, 1000)
+    toast({
+      title: "Setting Updated",
+      description: `${setting.replace(/([A-Z])/g, ' $1').toLowerCase()} ${value ? 'enabled' : 'disabled'}`,
+    })
   }
 
   return (
@@ -285,7 +338,59 @@ export default function PatientSettings() {
             <div className="space-y-2">
               <Label className="text-base font-medium">Change Password</Label>
               <p className="text-sm text-gray-600">Update your account password</p>
-              <Button variant="outline">Change Password</Button>
+              <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Change Password</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Change Password</DialogTitle>
+                    <DialogDescription>
+                      Enter your current password and choose a new one.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="current-password">Current Password</Label>
+                      <Input
+                        id="current-password"
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="Enter current password"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="new-password">New Password</Label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new password"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="confirm-password">Confirm New Password</Label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handlePasswordChange} disabled={isChangingPassword}>
+                      {isChangingPassword ? "Changing..." : "Change Password"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </CardContent>
         </Card>
@@ -349,7 +454,7 @@ export default function PatientSettings() {
 
         {/* Save Button */}
         <div className="flex justify-end">
-          <Button onClick={handleSaveSettings} size="lg">
+          <Button size="lg">
             Save All Settings
           </Button>
         </div>
